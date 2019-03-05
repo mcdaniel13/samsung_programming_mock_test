@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -34,12 +35,9 @@ void dfs(const vector<vector<int>> &consMap, vector<vector<bool>> &isVisited, in
             }
         }
 
-
         if(maxDistance < distance)
             maxDistance = distance;
     }
-
-
 }
 
 int findLogestPath(const vector<vector<int>> &consMap, const vector<pair<int,int>> &maxCordinates, const int &k) {
@@ -84,5 +82,4 @@ int main() {
         maxDistance = 0;
         cout << "#" << i + 1 << " " << result << endl;
     }
-
 }
