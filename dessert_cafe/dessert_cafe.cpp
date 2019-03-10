@@ -1,6 +1,8 @@
+#include "pch.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
+
 using namespace std;
 
 class Point {
@@ -99,7 +101,6 @@ int solve(const vector<vector<int>> &dessertMap, int m) {
 int main() {
     int n;
     cin >> n;
-    vector<int> res(n);
     for (int i = 0; i < n; i++) {
         int m;
         cin >> m;
@@ -111,10 +112,6 @@ int main() {
             }
         }
 
-        res[i] = solve(dessertMap, m);
-    }
-
-    for (int i = 0; i < n; i++) {
-        cout << "#" << i + 1 << " " << res[i] << endl;
+        cout << "#" << i + 1 << " " << solve(dessertMap, m) << endl;
     }
 }
