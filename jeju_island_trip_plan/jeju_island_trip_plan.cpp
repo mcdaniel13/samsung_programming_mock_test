@@ -11,33 +11,41 @@ struct Place {
     bool visited;
 };
 
-vector<int> path;
-int maxSatsfying;
+int movingTime[40][40];
+Place place[40];
+int path[40];
+int finalPath[40];
+int maxSatisfying;
 int maxDay;
+int numberOfPlaces;
 int startIndex;
 int pathPrintIndexMax;
 
-void solve(vector<Place> &place, vector<vector<int>> &movingTime, int curPlace, int funSum, int timeSum, int curDay, int pathIndex) {
+void solve(int curPlace, int funSum, int timeSum, int curDay, int pathIndex) {
     if(curDay > maxDay) {
-        if (maxSatsfying < funSum) {
-            maxSatsfying = funSum;
+        if (maxSatisfying < funSum) {
+            maxSatisfying = funSum;
             pathPrintIndexMax = pathIndex;
+            for (int i = 0; i < pathIndex; i++)
+                finalPath[i] = path[i];
         }
         return;
     }
-    for (int i = 0; i < place.size(); i++) {
+    
+    for (int i = 1; i < numberOfPlaces; i++) {
         if (!place[i].visited) {
             if (timeSum + movingTime[curPlace][i] + place[i].playingTime <= 540 && place[i].type == 'P') {
                 place[i].visited = true;
-                //path[pathIndex] = i + 1;
-                solve(place, movingTime, i, funSum + place[i].satisfying, timeSum + movingTime[curPlace][i] + place[i].playingTime, curDay, pathIndex + 1);
+                path[pathIndex] = i + 1;
+                solve(i, funSum + place[i].satisfying, timeSum + movingTime[curPlace][i] + place[i].playingTime,
+                      curDay, pathIndex + 1);
                 place[i].visited = false;
             } else if (timeSum + movingTime[curPlace][i] <= 540 && place[i].type == 'H' && curDay < maxDay) {
-                //path[pathIndex] = i + 1;
-                solve(place, movingTime, i, funSum, 0, curDay + 1, pathIndex + 1);
-            } else if (timeSum + movingTime[curPlace][i] <= 540 && place[i].type == 'A' && place[curPlace].type == 'P' && curDay == maxDay) {
-                //path[pathIndex] = i + 1;
-                solve(place, movingTime, i, funSum, 0, curDay + 1, pathIndex + 1);
+                path[pathIndex] = i + 1;
+                solve(i, funSum, 0, curDay + 1, pathIndex + 1);
+            } else if (timeSum + movingTime[curPlace][0] <= 540 && place[i].type == 'P' && curDay == maxDay) {
+                path[pathIndex] = 1;
+                solve(i, funSum, 0, curDay + 1, pathIndex + 1);
             }
         }
     }
@@ -47,36 +55,30 @@ void solve(vector<Place> &place, vector<vector<int>> &movingTime, int curPlace, 
 int main() {
     int testCase;
     cin >> testCase;
+    
     for(int k = 0; k < testCase; k++) {
-        int N, M;
-        cin >> N >> M;
-        maxDay = M;
-        vector<vector<int>> temp(N, vector<int>(N));
-        vector<Place> place(N);
-        for(int i = 0; i < N; i++) {
-            for(int j = i + 1; j < N; j++) {
+        cin >> numberOfPlaces >> maxDay;
+        
+        for(int i = 0; i < numberOfPlaces; i++) {
+            for(int j = i + 1; j < numberOfPlaces; j++) {
                 int tempInt;
                 cin >> tempInt;
-                temp[i][j] = tempInt;
-                temp[j][i] = tempInt;
+                movingTime[i][j] = tempInt;
+                movingTime[j][i] = tempInt;
             }
         }
-
-        path.clear();
-
-        for(int i = 0; i < N; i++) {
+        
+        for(int i = 0; i < numberOfPlaces; i++) {
             place[i].visited = false;
             char tempType;
             cin >> tempType;
             if (tempType == 'A') {
                 startIndex = i;
                 place[i].type = 'A';
-                place[i].playingTime = 0;
-                place[i].satisfying = 0;
+                continue;
             } else if (tempType == 'H') {
                 place[i].type = 'H';
-                place[i].playingTime = 0;
-                place[i].satisfying = 0;
+                continue;
             } else {
                 int tempTime;
                 int tempFun;
@@ -86,16 +88,15 @@ int main() {
                 place[i].satisfying = tempFun;
             }
         }
-
-        maxSatsfying = 0;
-        path.resize(40, 0);
-
-        solve(place, temp, startIndex, 0, 0, 1, 0);
-
-        cout << "#" << k + 1 << " " << maxSatsfying;
-//        for(int i = 0; i < pathPrintIndexMax; i++) {
-//            cout << " " << path[i];
-//        }
+        
+        maxSatisfying = 0;
+        pathPrintIndexMax = 0;
+        solve(startIndex, 0, 0, 1, 0);
+        
+        cout << "#" << k + 1 << " " << maxSatisfying;
+        for(int i = 0; i < pathPrintIndexMax; i++) {
+            cout << " " << finalPath[i];
+        }
         cout << endl;
     }
 }
