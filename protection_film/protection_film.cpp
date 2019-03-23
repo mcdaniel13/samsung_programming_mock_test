@@ -1,105 +1,111 @@
-## https://www.swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5V1SYKAaUDFAWu
-
 #include <iostream>
+
 using namespace std;
 
-int arr[13][20];
-int chemical[20];
+const int DMAX = 13;
+const int WMAX = 20;
+
+int t;
+int d;
+int w;
 int k;
-int row;
-int col;
-int minNumOfChem;
 
-void recursive(int curRow, int numOfChem, int prevCount[20], int prevMaxCount[20]) {
-    if(numOfChem >= minNumOfChem)
+int arr[DMAX][WMAX];
+int chemType[DMAX];
+int minChemUse;
+
+
+void findMinChemUse(int curRow, int curChemUse, int prevCount[DMAX], int maxPrevCount[DMAX]) {
+    if(curChemUse >= minChemUse)
         return;
-
-    if(curRow == row) {
-        bool isSatisfied = true;
-        for(int i = 0; i < col; i++)
-            if(prevMaxCount[i] < k) {
-                isSatisfied = false;
-                break;
+    
+    if(curRow == d) {
+        for(int i = 0; i < w; i++) {
+            if(maxPrevCount[i] < k) {
+                return;
             }
-
-        if(isSatisfied && numOfChem < minNumOfChem)
-            minNumOfChem = numOfChem;
-
+        }
+        
+        if(minChemUse > curChemUse)
+            minChemUse =  curChemUse;
         return;
     }
-
-    int curCount[20];
-    int curMaxCount[20];
-
-    for(int i = 2; i >= 0; i--) {
-        chemical[curRow] = i;
-        for(int j = 0; j < col; j++) {
-            int curType;
-            int prevType;
-            if(chemical[curRow] == 2)
-                curType = arr[curRow][j];
+    
+    
+    int curCount[WMAX];
+    int maxCurCount[WMAX];
+    
+    for(int i = -1; i < 2; i++) {
+        chemType[curRow] = i;
+        for(int curCol = 0; curCol < w; curCol++) {
+            int prevNum;
+            int curNum;
+            
+            if(chemType[curRow - 1] == -1)
+                prevNum = arr[curRow - 1][curCol];
             else
-                curType = chemical[curRow];
-
-            if(chemical[curRow - 1] == 2)
-                prevType = arr[curRow - 1][j];
+                prevNum = chemType[curRow - 1];
+            
+            if(chemType[curRow] == -1)
+                curNum = arr[curRow][curCol];
             else
-                prevType = chemical[curRow - 1];
-
-            if(curType == prevType)
-                curCount[j] = prevCount[j] + 1;
+                curNum = chemType[curRow];
+            
+            if(prevNum == curNum)
+                curCount[curCol] = prevCount[curCol] + 1;
             else
-                curCount[j] = 1;
-
-
-            if(curCount[j] > prevMaxCount[j])
-                curMaxCount[j] = curCount[j];
+                curCount[curCol] = 1;
+            
+            if(maxPrevCount[curCol] < curCount[curCol])
+                maxCurCount[curCol] = curCount[curCol];
             else
-                curMaxCount[j] = prevMaxCount[j];
+                maxCurCount[curCol] = maxPrevCount[curCol];
         }
-
-        if(chemical[curRow] == 2)
-            recursive(curRow + 1, numOfChem,  curCount, curMaxCount);
-        else
-            recursive(curRow + 1, numOfChem + 1, curCount, curMaxCount);
+        
+        if(chemType[curRow] == -1) {
+            findMinChemUse(curRow + 1, curChemUse, curCount, maxCurCount);
+        } else {
+            findMinChemUse(curRow + 1, curChemUse + 1, curCount, maxCurCount);
+        }
     }
+    
+    
+    
 }
 
 void solve() {
-    int curCount[20];
-    int curMaxCount[20];
-
-    for(int i = 0; i < col; i++) {
+    minChemUse = DMAX;
+    
+    int curCount[WMAX];
+    int maxCurCount[WMAX];
+    
+    for(int i = 0; i < WMAX; i++) {
         curCount[i] = 1;
-        curMaxCount[i] = 1;
+        maxCurCount[i] = 1;
     }
-
-    chemical[0] = 2;
-    recursive(1, 0, curCount, curMaxCount);
-
-    chemical[0] = 1;
-    recursive(1, 1, curCount, curMaxCount);
-
-    chemical[0] = 0;
-    recursive(1, 1, curCount, curMaxCount);
+    
+    chemType[0] = -1;
+    findMinChemUse(1, 0, curCount, maxCurCount);
+    
+    chemType[0] = 0;
+    findMinChemUse(1, 1, curCount, maxCurCount);
+    
+    chemType[0] = 1;
+    findMinChemUse(1, 1, curCount, maxCurCount);
 }
 
 int main() {
-    int T;
-    cin >> T;
-    for(int i = 0; i < T; i++) {
-        cin >> row >> col >> k;
-
-        for(int j = 0; j < row; j++) {
-            for(int k = 0; k < col; k++) {
-                cin >> arr[j][k];
-
+    cin >> t;
+    for(int i = 0; i < t; i++) {
+        cin >> d >> w >> k;
+        for(int x = 0; x < d; x++) {
+            for(int y = 0; y < w; y++) {
+                cin >> arr[x][y];
             }
         }
-        minNumOfChem = 13;
-
+        
         solve();
-
-        cout << "#" << i + 1 << " " << minNumOfChem << endl;
+        
+        cout << "#" << i + 1 << " " << minChemUse << endl;
     }
 }
