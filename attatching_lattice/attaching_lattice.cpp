@@ -1,4 +1,6 @@
-## https://www.swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV7I5fgqEogDFAXB
+/*
+ * https://www.swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV7I5fgqEogDFAXB
+ */
 
 #include <iostream>
 #include <vector>
