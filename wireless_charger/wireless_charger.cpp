@@ -4,7 +4,7 @@ using namespace std;
 
 
 const int NMAX = 10;
-const int MMAX = 100;
+const int MMAX = 101;
 const int AMAX = 9;
 
 int m, a;
@@ -52,36 +52,33 @@ int solve() {
     int bCurCount;
 
     for(int i = 0; i <= m; i++) {
-//        cout << " ===== round " << i << " ===== " << endl;
+        cout << " ===== round " << i << " ===== " << endl;
         aCurX += moving[userA[i]][0];
         aCurY += moving[userA[i]][1];
         bCurX += moving[userB[i]][0];
         bCurY += moving[userB[i]][1];
 
-//        cout << "[A] (" << aCurX << ", " << aCurY << ")" << endl;
-//        cout << "[B] (" << bCurX << ", " << bCurY << ")" << endl;
+        cout << "[A] (" << aCurX << ", " << aCurY << ")" << endl;
+        cout << "[B] (" << bCurX << ", " << bCurY << ")" << endl;
 
-        if(arr[aCurY][aCurX][0] != -1) {
-            if(arr[aCurY][aCurX][0] != 0) {
-                isOccupied[arr[aCurY][aCurX][0]] = true;
-            }
-            aCurCount = charger[arr[aCurY][aCurX][0]];
+        if(arr[aCurY][aCurX][0] != 0) {
+            isOccupied[arr[aCurY][aCurX][0]] = true;
         }
+        aCurCount = charger[arr[aCurY][aCurX][0]];
 
-        if(arr[bCurY][bCurX][0] != -1) {
-            if(isOccupied[arr[bCurY][bCurX][0]]) {
-                if(arr[bCurY][bCurX][1] == 0) {
-                    aCurCount = charger[arr[aCurY][aCurX][1]];
-                    bCurCount = charger[arr[bCurY][bCurX][0]];
-                } else {
-                    bCurCount = charger[arr[bCurY][bCurX][1]];
-                }
-            } else {
+        if(isOccupied[arr[bCurY][bCurX][0]]) {
+            if(arr[bCurY][bCurX][1] == 0) {
+                aCurCount = charger[arr[aCurY][aCurX][1]];
                 bCurCount = charger[arr[bCurY][bCurX][0]];
+            } else {
+                bCurCount = charger[arr[bCurY][bCurX][1]];
             }
+        } else {
+            bCurCount = charger[arr[bCurY][bCurX][0]];
         }
-//        cout << "[A] charger = " << aCurCount << endl;
-//        cout << "[B] charger = " << bCurCount << endl;
+
+        cout << "[A] charger = " << aCurCount << endl;
+        cout << "[B] charger = " << bCurCount << endl;
 
         aTotalCount += aCurCount;
         bTotalCount += bCurCount;
