@@ -1,3 +1,6 @@
+/*
+ * https://www.swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AWXRDL1aeugDFAUo
+ */
 #include <iostream>
 
 using namespace std;
@@ -52,14 +55,14 @@ int solve() {
     int bCurCount;
 
     for(int i = 0; i <= m; i++) {
-        cout << " ===== round " << i << " ===== " << endl;
+//        cout << " ===== round " << i << " ===== " << endl;
         aCurX += moving[userA[i]][0];
         aCurY += moving[userA[i]][1];
         bCurX += moving[userB[i]][0];
         bCurY += moving[userB[i]][1];
 
-        cout << "[A] (" << aCurX << ", " << aCurY << ")" << endl;
-        cout << "[B] (" << bCurX << ", " << bCurY << ")" << endl;
+//        cout << "[A] (" << aCurX << ", " << aCurY << ")" << endl;
+//        cout << "[B] (" << bCurX << ", " << bCurY << ")" << endl;
 
         if(arr[aCurY][aCurX][0] != 0) {
             isOccupied[arr[aCurY][aCurX][0]] = true;
@@ -67,7 +70,8 @@ int solve() {
         aCurCount = charger[arr[aCurY][aCurX][0]];
 
         if(isOccupied[arr[bCurY][bCurX][0]]) {
-            if(arr[bCurY][bCurX][1] == 0) {
+            /* 주의: if(arr[bCurY][bCurX][1] == 0) 이 아니라 충전기 값 비교 해야함 */
+            if(charger[arr[bCurY][bCurX][1]] < charger[arr[aCurY][aCurX][1]]) {
                 aCurCount = charger[arr[aCurY][aCurX][1]];
                 bCurCount = charger[arr[bCurY][bCurX][0]];
             } else {
@@ -77,8 +81,8 @@ int solve() {
             bCurCount = charger[arr[bCurY][bCurX][0]];
         }
 
-        cout << "[A] charger = " << aCurCount << endl;
-        cout << "[B] charger = " << bCurCount << endl;
+//        cout << "[A] charger = " << aCurCount << endl;
+//        cout << "[B] charger = " << bCurCount << endl;
 
         aTotalCount += aCurCount;
         bTotalCount += bCurCount;
@@ -142,8 +146,8 @@ int main() {
             cin >> chargerX >> chargerY >> chargerRange >> charger[j];
             setRange(chargerX - 1 - chargerRange, chargerX - 1 + chargerRange, chargerY - 1, j);
             isOccupied[j] = false;
-            //print();
         }
+        //print();
 
         cout << "#" << i + 1 << " " << solve() << endl;
     }
