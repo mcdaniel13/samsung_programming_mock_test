@@ -1,85 +1,108 @@
+/*
+	https://www.swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5PoOKKAPIDFAUq
+*/
+
 #include <iostream>
-#include <vector>
-#include <map>
+#include <algorithm>
 
 using namespace std;
 
-int moveCordinates[4][2] = {{0, 1},{1, 0}, {0, -1}, {-1, 0}};
-int maxDistance = 0;
+const int NMAX = 8;
 
-void dfs(const vector<vector<int>> &consMap, vector<vector<bool>> &isVisited, int x, int y, int curVal, bool isUsed, int distance, int k) {
-    for (int i = 0; i < 4; ++i) {
-        int newX = x + moveCordinates[i][0];
-        int newY = y + moveCordinates[i][1];
+int n, k;
 
-        if(newX < 0 || newX >= consMap.size() || newY < 0 || newY >= consMap.size())
-            continue;
 
-        if(isVisited[newX][newY])
-            continue;
+int moving[4][2] = { {0, 1}, {1, 0}, {0, -1}, {-1, 0} };
+int map[NMAX][NMAX];
+bool visit[NMAX][NMAX];
+int result;
 
-        int nextVal = consMap[newX][newY];
-        if(nextVal < curVal) {
-            isVisited[newX][newY] = true;
-            int newDistance = distance + 1;
-            //cout << "x = " << x << " y = " << y << " newX = " << newX << " newY = " << newY << " distance = " << newDistance << endl;
-            dfs(consMap, isVisited, newX, newY, nextVal, isUsed, newDistance, k);
-            isVisited[newX][newY] = false;
-        } else {
-            if ((!isUsed) && (nextVal - k < curVal)) {
-                int newDistance = distance + 1;
-                //cout << "x = " << x << " y = " << y << " newX = " << newX << " newY = " << newY << " distance = " << newDistance << endl;
-                isVisited[newX][newY] = true;
-                dfs(consMap, isVisited, newX, newY, curVal - 1, true, newDistance, k);
-                isVisited[newX][newY] = false;
-            }
-        }
-
-        if(maxDistance < distance)
-            maxDistance = distance;
-    }
+void print() {
+	cout << "===" << endl;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (visit[i][j])
+				cout << '0' << " ";
+			else
+				cout << map[i][j] << " ";
+		}
+		cout << endl;
+	}
 }
 
-int findLogestPath(const vector<vector<int>> &consMap, const vector<pair<int,int>> &maxCordinates, const int &k) {
-    for (int i = 0; i < maxCordinates.size(); ++i) {
-        int x = maxCordinates[i].first;
-        int y = maxCordinates[i].second;
+void dfs(int x, int y, int val, int cnt, bool used) {
+	for (int i = 0; i < 4; i++) {
+		int nx = x + moving[i][0];
+		int ny = y + moving[i][1];
+		if (nx >= 0 && nx < n && ny >= 0 && ny < n && !visit[nx][ny]) {
+			if (map[nx][ny] < val) {
+				visit[nx][ny] = true;
+				//cout << "==== next at " << nx << ", " << ny << " ====" <<  endl;
+				//print();
+				dfs(nx, ny, map[nx][ny], cnt + 1, used);
+				//cout << "==== move back from " << nx << ", " << ny << " ====" << endl;
+				visit[nx][ny] = false;
+				continue;
+			}
+			if (map[nx][ny] - k < val && !used) {
+				visit[nx][ny] = true;
+				//cout << "==== [USED] next at " << nx << ", " << ny << " ====" << endl;
+				//print();
+				dfs(nx, ny, val - 1, cnt + 1, true);
+				//cout << "==== move back from " << nx << ", " << ny << " ====" << endl;
+				visit[nx][ny] = false;
+				continue;
+			}
+		}
+	}
 
-        vector<vector<bool>> isVisited(consMap.size(), vector<bool>(consMap.size(), false));
+	//cout << "stop!! cnt = " << cnt << endl;
+	result = max(result, cnt);
 
-        isVisited[x][y] = true;
-        dfs(consMap, isVisited, x, y, consMap[x][y], false, 1, k);
-    }
+}
 
-    return maxDistance;
+void init() {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			visit[i][j] = false;
+		}
+	}
+}
+
+void solve(int start) {
+	//find start point
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (map[i][j] == start) {
+				init();
+				visit[i][j] = true;
+				//cout << "====== start at " << i << ", " << j << " ======" << endl;
+				//print();
+				dfs(i, j, map[i][j], 1, false);
+				visit[i][j] = false;
+			}
+		}
+	}
 }
 
 int main() {
-    int n, size, K;
-    cin >> n;
+	int test;
+	cin >> test;
 
-    for (int i = 0; i < n; ++i) {
-        cin >> size >> K;
-        vector<vector<int>> consMap;
-        map<int, vector<pair<int, int>>> cordinates;
-        int maxVal = 0;
-        for (int j = 0; j < size; ++j) {
-            consMap.resize(size, vector<int>(size));
-            for (int k = 0; k < size; ++k) {
-                int temp;
-                cin >> temp;
-                consMap[j][k] = temp;
-                cordinates[temp].push_back(make_pair(j, k));
+	for (int t = 0; t < test; t++) {
+		int start = 0;
+		cin >> n >> k;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				cin >> map[i][j];
+				start = max(start, map[i][j]);
+			}
+		}
 
-                if(temp >= maxVal) {
-                    maxVal = temp;
-                }
-            }
-        }
-        vector<pair<int,int>> maxCordinates = cordinates[maxVal];
+		result = 0;
+		solve(start);
+		cout << "#" << t + 1 << " " << result << endl;
+	}
+	cout << endl;
 
-        int result = findLogestPath(consMap, maxCordinates, K);
-        maxDistance = 0;
-        cout << "#" << i + 1 << " " << result << endl;
-    }
 }
