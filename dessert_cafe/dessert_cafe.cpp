@@ -1,121 +1,97 @@
+/*
+	https://www.swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5VwAr6APYDFAWu
+*/
+
 #include <iostream>
-#include <vector>
 #include <algorithm>
 
 using namespace std;
 
-int solve(const vector<vector<int>> &dessertMap, int m) {
-    int result = -1;
-    for (int i = 0; i < dessertMap.size(); i++) {
-        for (int j = 0; j < dessertMap[i].size(); j++) {
+const int NMAX = 20;
+const int MMAX = 101;
+int n;
 
-            for (int a = 1; a < m - 1; a++) {
-                for (int b = 1; b < m - 1; b++) {
-                    if (j - b >= 0 && i + a + b < m && j + a < m && (a + b) * 2 > result) {
-                        //cout << "result = " << result << " start = (" << i << ", " << j << ") where a = " << a << " b = " << b << endl;
-                        bool isAble = true;
-                        vector<bool> visited(101, false);
-                        visited[dessertMap[i][j]] = true;
-                        int curi = i;
-                        int curj = j;
-                        for (int n = 0; n < a; n++) {
-                            curi = curi + 1;
-                            curj = curj + 1;
-                            int newDessert = dessertMap[curi][curj];
-                            if (!visited[newDessert]) {
-                                //cout << "[downright] (" << curi << ", " << curj << ")" << endl;
-                                visited[newDessert] = true;
-                            }
-                            else {
-                                isAble = false;
-                                break;
-                            }
-                        }
+int moving[4][2] = { {1, 1}, {1, -1}, {-1, -1}, {-1, 1} };
+int map[NMAX][NMAX];
+int visit[MMAX];
+int sx, sy;
+int maxCount;
 
-                        if (!isAble)
-                            continue;
+struct point {
+	int x;
+	int y;
+	int a;
+	int b;
+	int d;
+	point(int x_, int y_) {
+		x = x_;
+		y = y_;
+	}
+};
 
-                        for (int n = 0; n < b; n++) {
-                            curi = curi + 1;
-                            curj = curj - 1;
-                            int newDessert = dessertMap[curi][curj];
-                            if (!visited[newDessert]) {
-                                //cout << "[downleft] (" << curi << ", " << curj << ")" << endl;
-                                visited[newDessert] = true;
-                            }
-                            else {
-                                isAble = false;
-                                break;
-                            }
-                        }
+void init() {
+	for (int i = 0; i < MMAX; i++)
+		visit[i] = false;
+}
 
-                        if (!isAble)
-                            continue;
+void solve() {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			//cout << "======== start = " << i << ", " << j << " =========" << endl;
+			for (int a = 1; a < n - 1; a++) {
+				for (int b = 1; b < n - 1; b++) {
+					if (j - b >= 0 && j + a < n && i + a + b < n && (a + b) * 2 > maxCount) {
+						//cout << "==== diag a = " << a << " diag b = " << j << " ====" << endl;
+						bool flag = true;
+						init();
+						int cx = i;
+						int cy = j;
+						for (int m = 0; m < 4; m++) {
+							//cout << "=== dir = " << m << "===" << endl;
+							int cnt;
+							if (m == 0 || m == 2)
+								cnt = a;
+							else
+								cnt = b;
 
-                        for (int n = 0; n < a; n++) {
-                            curi = curi - 1;
-                            curj = curj - 1;
-                            int newDessert = dessertMap[curi][curj];
-                            if (!visited[newDessert]) {
-                                //cout << "[upleft] (" << curi << ", " << curj << ")" << endl;
-                                visited[newDessert] = true;
-                            }
-                            else {
-                                isAble = false;
-                                break;
-                            }
-                        }
-
-                        if (!isAble)
-                            continue;
-
-                        for (int n = 0; n < b - 1; n++) {
-                            curi = curi - 1;
-                            curj = curj + 1;
-                            int newDessert = dessertMap[curi][curj];
-                            if (!visited[newDessert]) {
-                                //cout << "[upright] (" << curi << ", " << curj << ")" << endl;
-                                visited[newDessert] = true;
-                            }
-                            else {
-                                isAble = false;
-                                break;
-                            }
-                        }
-
-                        if (!isAble)
-                            continue;
-
-                        result = (a + b) * 2;
-                    }
-                }
-            }
-        }
-    }
-
-    return result;
+							for (int k = 0; k < cnt; k++) {
+								cx += moving[m][0];
+								cy += moving[m][1];
+								if (!visit[map[cx][cy]]) {
+									//cout << "next = " << cx << ", " << cy << endl;
+									visit[map[cx][cy]] = true;
+								}
+								else {
+									//cout << "stop = " << cx << ", " << cy << endl;
+									flag = false;
+									break;
+								}
+							}
+							if (!flag)
+								break;
+						}
+						if (flag)
+							maxCount = max(maxCount, (a + b) * 2);
+					}
+				}
+			}
+		}
+	}
 }
 
 int main() {
-    int n;
-    cin >> n;
+	int test;
+	cin >> test;
+	for (int t = 0; t < test; t++) {
+		cin >> n;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				cin >> map[i][j];
+			}
+		}
 
-    vector<int> res(n);
-    for (int i = 0; i < n; i++) {
-        int m;
-        cin >> m;
-
-        vector<vector<int>> dessertMap(m, vector<int>(m));
-        for (int j = 0; j < m; j++) {
-            for (int k = 0; k < m; k++) {
-                cin >> dessertMap[j][k];
-            }
-        }
-
-        res[i] = solve(dessertMap, m);
-    }
-
-    for (int i = 0; i < n; i++) {
-        cout << "#" << i + 1 << " " << res[i] << endl;
-    }
+		maxCount = -1;
+		solve();
+		cout << "#" << t + 1 << " " << maxCount << endl;
+	}
 }
