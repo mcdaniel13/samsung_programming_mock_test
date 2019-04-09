@@ -1,159 +1,123 @@
+/*
+	https://www.swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5PpLlKAQ4DFAUq
+*/
+
 #include <iostream>
-#include <vector>
-#include <queue>
 
 using namespace std;
 
-vector<vector<int>> map;
-vector<vector<bool>> isVisited;
+const int NMAX = 50;
 
-bool isConnected(int direction, int nextType) {
-    if (nextType == 0)
-        return false;
+int moving[4][2] = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+int map[NMAX][NMAX];
+bool arr[NMAX][NMAX];
+bool visit[NMAX][NMAX];
+int n, m, r, c, l;
 
-    if (direction == 0) {
-        if (nextType == 1 || nextType == 2 || nextType == 4 || nextType == 7)
-            return true;
-    }
-    else if (direction == 1) {
-        if (nextType == 1 || nextType == 2 || nextType == 5 || nextType == 6)
-            return true;
-    }
-    else if (direction == 2) {
-        if (nextType == 1 || nextType == 3 || nextType == 6 || nextType == 7)
-            return true;
-    }
-    else if (direction == 3) {
-        if (nextType == 1 || nextType == 3 || nextType == 4 || nextType == 5)
-            return true;
-    }
-
-    return false;
+void print() {
+	cout << "====" << endl;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (visit[i][j])
+				cout << "8 ";
+			else
+				cout << map[i][j] << ' ';
+		}
+		cout << endl;
+	}
 }
 
-
-int bfs(int startX, int startY, int t) {
-    int retCount = 1;
-    queue<pair<int,int>> q;
-    queue<pair<int, int>> qPrev;
-    queue<int> qDepth;
-
-    q.push(make_pair(startX, startY));
-    qPrev.push(make_pair(startX, startY));
-    qDepth.push(1);
-    isVisited[startX][startY] = true;
-
-    while (!q.empty())  {
-        int x = q.front().first;
-        int y = q.front().second;
-        int prevX = qPrev.front().first;
-        int prevY = qPrev.front().second;
-        int curDepth = qDepth.front();
-
-        if (curDepth == t)
-            break;
-
-
-        int type = map[x][y];
-        q.pop();
-        qPrev.pop();
-        qDepth.pop();
-
-        if ((type == 1 || type == 2 || type == 5 || type == 6)) {
-            if (x + 1 < map.size() && x + 1 >= 0 && y < map[0].size() && y >= 0 && !(x + 1 == prevX && y == prevY)) {
-                if (isConnected(0, map[x + 1][y])) {
-                    if (!isVisited[x + 1][y]) {
-                        isVisited[x + 1][y] = true;
-                        retCount += 1;
-                    }
-                    q.push(make_pair(x + 1, y));
-                    qPrev.push(make_pair(x, y));
-                    int nextDepth = curDepth + 1;
-                    qDepth.push(nextDepth);
-                }
-
-            }
-        }
-        if (type == 1 || type == 2 || type == 4 || type == 7) {
-            if (x - 1 < map.size() && x - 1 >= 0 && y < map[0].size() && y >= 0 && !(x - 1 == prevX && y == prevY)) {
-                if (isConnected(1, map[x - 1][y])) {
-                    if (!isVisited[x - 1][y]) {
-                        isVisited[x - 1][y] = true;
-                        retCount += 1;
-                    }
-                    q.push(make_pair(x - 1, y));
-                    qPrev.push(make_pair(x, y));
-                    int nextDepth = curDepth + 1;
-                    qDepth.push(nextDepth);
-                }
-
-            }
-        }
-        if (type == 1 || type == 3 || type == 4 || type == 5) {
-            if (x < map.size() && x >= 0 && y + 1 < map[0].size() && y + 1 >= 0 && !(x == prevX && y + 1 == prevY)) {
-                if (isConnected(2, map[x][y + 1])) {
-                    if (!isVisited[x][y + 1]) {
-                        isVisited[x][y + 1] = true;
-                        retCount += 1;
-                    }
-                    q.push(make_pair(x, y + 1));
-                    qPrev.push(make_pair(x, y));
-                    int nextDepth = curDepth + 1;
-                    qDepth.push(nextDepth);
-                }
-
-            }
-        }
-        if (type == 1 || type == 3 || type == 6 || type == 7) {
-            if (x < map.size() && x >= 0 && y - 1 < map[0].size() && y - 1 >= 0 && !(x == prevX && y - 1 == prevY)) {
-                if (isConnected(3, map[x][y - 1])) {
-                    if (!isVisited[x][y - 1]) {
-                        isVisited[x][y - 1] = true;
-                        retCount += 1;
-                    }
-                    q.push(make_pair(x, y - 1));
-                    qPrev.push(make_pair(x, y));
-                    int nextDepth = curDepth + 1;
-                    qDepth.push(nextDepth);
-                }
-
-            }
-        }
-    }
-
-    return retCount;
+int calculate() {
+	int cnt = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			if (arr[i][j])
+				cnt++;
+		}
+	}
+	return cnt;
 }
 
-int solve(int col, int row, int x, int y, int t) {
-    if (t > 1) {
-        return bfs(x, y, t);
-    }
-    else
-        return 1;
+bool checkDirection(int dir, int type) {
+	if (dir == 0) {
+		if (type == 1 || type == 2 || type == 4 || type == 7)
+			return true;
+	}
+	else if (dir == 1) {
+		if (type == 1 || type == 2 || type == 5 || type == 6)
+			return true;
+	}
+	else if (dir == 2) {
+		if (type == 1 || type == 3 || type == 6 || type == 7)
+			return true;
+	}
+	else if (dir == 3) {
+		if (type == 1 || type == 3 || type == 4 || type == 5)
+			return true;
+	}
+	return false;
+}
+
+bool checkAvailabiliy(int dir, int next) {
+	if (dir == 0) {
+		if (next == 1 || next == 2 || next == 5 || next == 6)
+			return true;
+	}
+	else if (dir == 1) {
+		if (next == 1 || next == 2 || next == 4 || next == 7)
+			return true;
+	}
+	else if (dir == 2) {
+		if (next == 1 || next == 3 || next == 4 || next == 5)
+			return true;
+	}
+	else if (dir == 3) {
+		if (next == 1 || next == 3 || next == 6 || next == 7)
+			return true;
+	}
+	return false;
+}
+
+void solve(int x, int y, int cnt) {
+	if (cnt == l)
+		return;
+
+	for (int i = 0; i < 4; i++) {
+		if (!checkDirection(i, map[x][y]))
+			continue;
+
+		int nx = x + moving[i][0];
+		int ny = y + moving[i][1];
+		if (nx >= 0 && nx < n && ny >= 0 && ny < m && checkAvailabiliy(i, map[nx][ny]) && !visit[nx][ny]) {
+			//cout << "==== next = " << nx << ", " << ny << " cnt = " << cnt + 1 << " ====" << endl;
+			visit[nx][ny] = true;
+			arr[nx][ny] = true;
+			//print();
+			solve(nx, ny, cnt + 1);
+			visit[nx][ny] = false;
+		}
+	}
 }
 
 int main() {
-    int n;
-    cin >> n;
+	int test;
+	cin >> test;
+	for (int t = 0; t < test; t++) {
+		cin >> n >> m >> r >> c >> l;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < m; j++) {
+				cin >> map[i][j];
+				visit[i][j] = false;
+				arr[i][j] = false;
+			}
+		}
 
-    vector<int> res;
-    for (int k = 0; k < n; ++k) {
-        map.clear();
-        isVisited.clear();
-        int col, row, m_col, m_row, t;
-        cin >> col >> row >> m_col >> m_row >> t;
-        //cout << col << " " <<  row << " " << m_col << " " << m_row << " " << t << endl;
-        for (int i = 0; i < col; ++i) {
-            for (int j = 0; j < row; ++j) {
-                map.resize(col, vector<int>(row, 0));
-                isVisited.resize(col, vector<bool>(row, false));
-                int temp;
-                cin >> temp;
-                map[i][j] = temp;
-            }
-        }
 
-        cout << "#" << k + 1 << " " << solve(col, row, m_col, m_row, t) << endl;
-    }
+		visit[r][c] = true;
+		if (map[r][c] != 0)
+			arr[r][c] = true;
+		//cout << "==== start = " << r << ", " << c << " ====" << endl;
+		solve(r, c, 1);
+		cout << '#' << t + 1 << ' ' << calculate() << endl;
+	}
 }
-
