@@ -1,84 +1,75 @@
 /*
  * https://www.swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5V61LqAf8DFAWu
  */
-
 #include <iostream>
 #include <algorithm>
 
 using namespace std;
 
-int operatingPrice[21];
-int maxLineSize[21];
+const int NMAX = 20;
 
-int houseMap[20][20];
-int n;
-int m;
+int n, m;
 
-int earningPrice;
-int houseCount;
-int maxHouseCount;
+int map[NMAX][NMAX];
+int K[NMAX + 1];
+int cnt;
+int maxCount;
 
-void findEarningPrice(int curRow, int midRow, int start, int end, int count, int k) {
-    if(curRow < 0 || curRow >= n)
-        return;
+void calculate(int row, int x, int start, int end) {
+	if (start > end || (x < 0 || x >= n))
+		return;
 
-    for(int i = start; i <= end; i++) {
-        if(i >= 0 && i < n) {
-            if(houseMap[curRow][i]) {
-                houseCount++;
-                earningPrice += m;
-            }
-        }
-    }
+	for (int i = start; i <= end; i++) {
+		if (i >= 0 && i < n && map[x][i] == 1)
+			cnt++;
+	}
 
-    if(curRow <= midRow && count < k) {
-        findEarningPrice(curRow - 1, midRow, start + 1, end - 1, count + 1, k);
-    }
+	if (x <= row)
+		calculate(row, x - 1, start + 1, end - 1);
 
-    if(curRow >= midRow && count < k) {
-        findEarningPrice(curRow + 1, midRow, start + 1, end - 1, count + 1, k);
-    }
+	if (x >= row)
+		calculate(row, x + 1, start + 1, end - 1);
 }
 
 void solve() {
-    maxHouseCount = 0;
-
-    for(int i = 0; i < n; i++) {
-        for(int j = 0; j< n; j++) {
-            for(int k = 0; k < n + 1; k++) {
-                earningPrice = -operatingPrice[k];
-                houseCount = 0;
-                findEarningPrice(i, i, j - maxLineSize[k] / 2, j + maxLineSize[k] / 2, 0, k);
-                if(earningPrice >= 0) {
-                    maxHouseCount = max(houseCount, maxHouseCount);
-                }
-            }
-        }
-    }
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			//cout << "==== start = " << i << ", " << j << " ====" << endl;
+			//find at each k
+			for (int k = 0; k < n + 1; k++) {
+				cnt = 0;
+				calculate(i, i, j - k, j + k);
+				//cout << "k = " << k << " cnt = " << cnt << " ";
+				//cout << "total = " << total << endl;
+				if (cnt * m - K[k] >= 0)
+					maxCount = max(maxCount, cnt);
+			}
+		}
+	}
 }
 
 
 int main() {
-    operatingPrice[0] = 1;
-    maxLineSize[0] = 1;
+	int test;
+	cin >> test;
 
-    for(int i = 1; i < 21; i++) {
-        operatingPrice[i] = operatingPrice[i - 1] + 4 * i;
-        maxLineSize[i] += maxLineSize[i - 1] + 2;
-    }
+	//init
+	K[0] = 1;
+	for (int i = 1; i < NMAX + 1; i++)
+		K[i] = K[i - 1] + 4 * i;
 
-    int t;
-    cin >> t;
-    for(int k = 0; k < t; k++) {
-        cin >> n >> m;
-        for(int i = 0; i < n; i++) {
-            for(int j = 0; j < n; j++) {
-                cin >> houseMap[i][j];
-            }
-        }
 
-        solve();
+	for (int t = 0; t < test; t++) {
+		cin >> n >> m;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				cin >> map[i][j];
+			}
+		}
 
-        cout << "#" << k + 1 << " " << maxHouseCount << endl;
-    }
+		maxCount = 0;
+		solve();
+		cout << "#" << t + 1 << " " << maxCount << endl;
+	}
+}
 }
