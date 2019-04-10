@@ -6,107 +6,93 @@
 
 using namespace std;
 
-const int maxN = 100;
-const int maxK = 1000;
+const int NMAX = 100;
+const int KMAX = 1000;
 
-int cellMap[maxN][maxN];
-int cellMapLocation[maxN][maxN];
-int mLocation[maxK][2];
-int mCount[maxK];
-int mDirection[maxK];
+struct bacteria {
+	int x;
+	int y;
+	int dir;
+	int cnt;
+	bacteria() {}
+	bacteria(int x_, int y_, int dir_, int cnt_) {
+		x = x_;
+		y = y_;
+		dir = dir_;
+		cnt = cnt_;
+	}
+};
 
-int n;
-int m;
-int k;
-int totalCount;
+int moving[5][2] = { {0, 0}, {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+int map[NMAX][NMAX];
+int index[NMAX][NMAX];
+bacteria arr[KMAX];
 
-void solve(int curK, int curM) {
-    if(curM == 0) {
-        totalCount = 0;
-        for(int i = 0; i < curK; i++) {
-            totalCount += mCount[i];
-        }
-        return;
-    }
+int n, m, k;
 
-    for(int j = 0; j < n; j++) {
-        for(int l = 0; l < n; l++) {
-            cellMap[j][l] = 0;
-        }
-    }
-
-    int newK = 0;
-    for(int i = 0; i < curK; i++) {
-        bool isNewK = true;
-        int newX, newY, newCount, newDirection;
-        if(mDirection[i] == 1) {
-            newX = mLocation[i][0] - 1;
-            newY = mLocation[i][1];
-        } else if (mDirection[i] == 2) {
-            newX = mLocation[i][0] + 1;
-            newY = mLocation[i][1];
-        } else if(mDirection[i] == 3) {
-            newX = mLocation[i][0];
-            newY = mLocation[i][1] - 1;
-        } else {
-            newX = mLocation[i][0];
-            newY = mLocation[i][1] + 1;
-        }
-
-        if(newX == 0 || newX == n - 1 || newY == 0 || newY == n - 1) {
-            newCount = mCount[i] / 2;
-            if(mDirection[i] == 1)
-                newDirection = 2;
-            else if (mDirection[i] == 2)
-                newDirection = 1;
-            else if(mDirection[i] == 3)
-                newDirection = 4;
-            else
-                newDirection = 3;
-        } else {
-            if(cellMap[newX][newY] == 0) {
-                cellMap[newX][newY] = mCount[i];
-                cellMapLocation[newX][newY] = newK;
-                newCount = mCount[i];
-                newDirection = mDirection[i];
-            } else {
-                isNewK = false;
-                if(cellMap[newX][newY] < mCount[i]) {
-                    cellMap[newX][newY] = mCount[i];
-                    mCount[cellMapLocation[newX][newY]] += mCount[i];
-                    mDirection[cellMapLocation[newX][newY]] = mDirection[i];
-                } else {
-                    mCount[cellMapLocation[newX][newY]] += mCount[i];
-                }
-            }
-        }
-
-        if(isNewK) {
-            mLocation[newK][0] = newX;
-            mLocation[newK][1] = newY;
-            mCount[newK] = newCount;
-            mDirection[newK] = newDirection;
-            newK++;
-        }
-    }
-
-
-
-    solve(newK, curM - 1);
+void init() {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			map[i][j] = 0;
+		}
+	}
 }
 
+int solve() {
+	int ck = k;
+	for (int j = 0; j < m; j++) {
+		init();
+		int nk = 0;
+		for (int i = 0; i < ck; i++) {
+			bool flag = true;
+			arr[i].x += moving[arr[i].dir][0];
+			arr[i].y += moving[arr[i].dir][1];
+			if (arr[i].x == 0 || arr[i].x == n - 1 || arr[i].y == 0 || arr[i].y == n - 1) {
+				arr[i].cnt /= 2;
+				if (arr[i].dir % 2 == 1)
+					arr[i].dir += 1;
+				else
+					arr[i].dir -= 1;
+			}
+			else {
+				if (map[arr[i].x][arr[i].y] == 0) {
+					map[arr[i].x][arr[i].y] = arr[i].cnt;
+					index[arr[i].x][arr[i].y] = nk;
+				}
+				else {
+					flag = false;
+					if (map[arr[i].x][arr[i].y] < arr[i].cnt) {
+						map[arr[i].x][arr[i].y] = arr[i].cnt;
+						arr[index[arr[i].x][arr[i].y]].dir = arr[i].dir;
+					}
+					arr[index[arr[i].x][arr[i].y]].cnt += arr[i].cnt;
+				}
+			}
+
+			if (flag) {
+				arr[nk] = bacteria(arr[i].x, arr[i].y, arr[i].dir, arr[i].cnt);
+				nk++;
+			}
+		}
+		ck = nk;
+	}
+
+	int total = 0;
+	for (int j = 0; j < ck; j++)
+		total += arr[j].cnt;
+
+	return total;
+}
 
 int main() {
-    int t;
-    cin >> t;
-    for(int i = 0; i < t; i++) {
-        cin >> n >> m >> k;
-        for(int j = 0; j < k; j++) {
-            cin >> mLocation[j][0] >> mLocation[j][1] >> mCount[j] >> mDirection[j];
-        }
+	int test;
+	cin >> test;
+	for (int t = 0; t < test; t++) {
+		cin >> n >> m >> k;
+		for (int i = 0; i < k; i++) {
+			cin >> arr[i].x >> arr[i].y >> arr[i].cnt >> arr[i].dir;
+		}
 
-        solve(k, m);
-
-        cout << "#" << i + 1 << " " << totalCount << endl;
-    }
+		cout << "#" << t + 1 << " " << solve() << endl;
+	}
 }
